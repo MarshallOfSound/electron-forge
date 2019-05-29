@@ -16,15 +16,6 @@ jump right in to Electron development.
 
 ----
 
-## :rotating_light: :construction: **WARNING** :construction: :rotating_light:
-
-:building_construction:
-
-The `master` branch is a rewrite of Electron Forge that will eventually be the 6.x series. If you
-are looking for the 5.x series (the version currently published to NPM), please view the [5.x branch](https://github.com/electron-userland/electron-forge/tree/5.x).
-
-----
-
 [Website](https://v6.electronforge.io) |
 [Goals](#project-goals) |
 [Docs and Usage](#docs-and-usage) |
