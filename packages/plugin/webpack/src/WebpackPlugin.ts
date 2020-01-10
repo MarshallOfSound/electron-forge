@@ -333,7 +333,7 @@ Your packaged app may be larger than expected if you dont ignore everything othe
       const prefixedEntries = entryPoint.prefixedEntries || [];
       entry[entryPoint.name] = prefixedEntries
         .concat([entryPoint.js])
-        .concat(this.isProd || !entryPoint.html ? [] : ['webpack-hot-middleware/client']);
+        .concat(this.isProd || !entryPoint.html ? [] : ['webpack-hot-middleware/client?reload=true']);
     }
 
     const defines = this.getDefines(false);
