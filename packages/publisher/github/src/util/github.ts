@@ -1,5 +1,4 @@
 import { Octokit } from '@octokit/rest';
-import { merge } from 'lodash';
 
 export default class GitHub {
   private options: Octokit.Options;
@@ -11,10 +10,10 @@ export default class GitHub {
     requireAuth: boolean = false,
     options: Octokit.Options = {},
   ) {
-    this.options = merge(
-      options,
-      { headers: { 'user-agent': 'Electron Forge' } },
-    );
+    this.options = {
+      ...options,
+      ...{ userAgent: 'Electron Forge' },
+    };
     if (authToken) {
       this.token = authToken;
     } else if (process.env.GITHUB_TOKEN) {
@@ -25,13 +24,11 @@ export default class GitHub {
   }
 
   getGitHub() {
-    const github = new Octokit(this.options);
-    if (this.token) {
-      github.authenticate({
-        type: 'token',
-        token: this.token,
-      });
-    }
+    const authOption = this.token ? { auth: `token ${this.token}` } : {};
+    const github = new Octokit({
+      ...this.options,
+      ...authOption,
+    });
     return github;
   }
 }

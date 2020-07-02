@@ -99,7 +99,7 @@ export default class PublisherGithub extends PublisherBase<PublisherGitHubConfig
           }
           await github.getGitHub().repos.uploadReleaseAsset({
             url: release!.upload_url,
-            file: fs.createReadStream(artifactPath),
+            data: fs.createReadStream(artifactPath),
             headers: {
               'content-type': mime.lookup(artifactPath) || 'application/octet-stream',
               'content-length': (await fs.stat(artifactPath)).size,
