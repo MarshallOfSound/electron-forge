@@ -36,6 +36,7 @@
   "dependencies": {
     "@doyensec/electronegativity": "^1.7.0",
     "@electron/get": "^1.9.0",
+    "@google-cloud/storage": "^5.0.1",
     "@malept/cross-spawn-promise": "^1.1.1",
     "@octokit/core": "^3.2.4",
     "@octokit/rest": "^18.0.11",

@@ -1,0 +1,24 @@
+{
+  "name": "@electron-forge/publisher-gcs",
+  "version": "6.0.0-beta.54",
+  "description": "Google Cloud Storage publisher for Electron Forge",
+  "repository": "https://github.com/electron-userland/electron-forge",
+  "author": "Evgeny Vlasenko",
+  "license": "MIT",
+  "main": "dist/PublisherGCS.js",
+  "typings": "dist/PublisherGCS.d.ts",
+  "devDependencies": {
+    "chai": "4.2.0",
+    "mocha": "^8.1.3"
+  },
+  "engines": {
+    "node": ">= 10.0.0"
+  },
+  "dependencies": {
+    "@electron-forge/async-ora": "6.0.0-beta.54",
+    "@electron-forge/publisher-base": "6.0.0-beta.54",
+    "@electron-forge/shared-types": "6.0.0-beta.54",
+    "@google-cloud/storage": "^5.0.1",
+    "debug": "^4.3.1"
+  }
+}
