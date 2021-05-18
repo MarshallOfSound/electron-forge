@@ -1,11 +1,20 @@
-import { Entry } from 'webpack';
+import { Entry, ConfigurationFactory, Configuration } from 'webpack';
 import { expect } from 'chai';
 import path from 'path';
 
 import WebpackConfigGenerator from '../src/WebpackConfig';
-import { WebpackPluginConfig, WebpackPluginEntryPoint } from '../src/Config';
+import { WebpackPluginConfig, WebpackPluginEntryPoint, WebpackConfiguration } from '../src/Config';
 
 const mockProjectDir = process.platform === 'win32' ? 'C:\\path' : '/path';
+
+const sampleWebpackConfig = {
+  module: {
+    rules: [{
+      test: /\.(png|jpg|gif|webp)$/,
+      use: 'file-loader',
+    }],
+  },
+};
 
 describe('WebpackConfigGenerator', () => {
   describe('getDefines', () => {
@@ -173,12 +182,12 @@ describe('WebpackConfigGenerator', () => {
   });
 
   describe('getMainConfig', () => {
-    it('fails when there is no mainConfig.entry', () => {
+    it('fails when there is no mainConfig.entry', async () => {
       const config = {
         mainConfig: {},
       } as WebpackPluginConfig;
       const generator = new WebpackConfigGenerator(config, '/', false, 3000);
-      expect(() => generator.getMainConfig()).to.throw('Required option "mainConfig.entry" has not been defined');
+      await expect(generator.getMainConfig()).to.be.rejectedWith('Required option "mainConfig.entry" has not been defined');
     });
 
     it('generates a development config', async () => {
@@ -261,6 +270,36 @@ describe('WebpackConfigGenerator', () => {
       const generator = new WebpackConfigGenerator(config, baseDir, true, 3000);
       const webpackConfig = await generator.getMainConfig();
       expect(webpackConfig.entry).to.equal(path.resolve(baseDir, 'foo/main.js'));
+    });
+
+    it('generates a config from function', async () => {
+      const generateWebpackConfig = (webpackConfig: WebpackConfiguration) => {
+        const config = {
+          mainConfig: webpackConfig,
+          renderer: {
+            entryPoints: [] as WebpackPluginEntryPoint[],
+          },
+        } as WebpackPluginConfig;
+        const generator = new WebpackConfigGenerator(config, mockProjectDir, false, 3000);
+        return generator.getMainConfig();
+      };
+
+      const modelWebpackConfig = await generateWebpackConfig({
+        entry: 'main.js',
+        ...sampleWebpackConfig,
+      });
+
+      // Check fn form
+      expect(await generateWebpackConfig(() => ({
+        entry: 'main.js',
+        ...sampleWebpackConfig,
+      }))).to.deep.equal(modelWebpackConfig);
+
+      // Check promise form
+      expect(await generateWebpackConfig(async () => ({
+        entry: 'main.js',
+        ...sampleWebpackConfig,
+      }))).to.deep.equal(modelWebpackConfig);
     });
   });
 
@@ -426,6 +465,115 @@ describe('WebpackConfigGenerator', () => {
       const generator = new WebpackConfigGenerator(config, mockProjectDir, true, 3000);
       const webpackConfig = await generator.getRendererConfig(config.renderer.entryPoints);
       expect(webpackConfig.target).to.equal('web');
+    });
+
+    it('generates a config from function', async () => {
+      const generateWebpackConfig = (webpackConfig: WebpackConfiguration) => {
+        const config = {
+          renderer: {
+            config: webpackConfig,
+            entryPoints: [{
+              name: 'main',
+              js: 'rendererScript.js',
+            }],
+          },
+        } as WebpackPluginConfig;
+        const generator = new WebpackConfigGenerator(config, mockProjectDir, false, 3000);
+        return generator.getRendererConfig(config.renderer.entryPoints);
+      };
+
+      const modelWebpackConfig = await generateWebpackConfig({
+        ...sampleWebpackConfig,
+      });
+
+      // Check fn form
+      expect(await generateWebpackConfig(() => ({
+        ...sampleWebpackConfig,
+      }))).to.deep.equal(modelWebpackConfig);
+
+      // Check promise form
+      expect(await generateWebpackConfig(async () => ({
+        ...sampleWebpackConfig,
+      }))).to.deep.equal(modelWebpackConfig);
+    });
+  });
+
+  describe('preprocessConfig', () => {
+    context('when overriden in subclass', () => {
+      const makeSubclass = () => {
+        let invoked = 0;
+
+        class MyWebpackConfigGenerator extends WebpackConfigGenerator {
+          preprocessConfig = async (config: ConfigurationFactory): Promise<Configuration> => {
+            invoked += 1;
+            return config(
+              { hello: 'world' },
+              { },
+            );
+          }
+        }
+
+        return {
+          getInvokedCounter: () => invoked,
+          MyWebpackConfigGenerator,
+        };
+      };
+
+      it('is not invoked for object config', async () => {
+        const { MyWebpackConfigGenerator, getInvokedCounter } = makeSubclass();
+
+        const config = {
+          mainConfig: {
+            entry: 'main.js',
+            ...sampleWebpackConfig,
+          },
+          renderer: {
+            config: { ...sampleWebpackConfig },
+            entryPoints: [{
+              name: 'main',
+              js: 'rendererScript.js',
+            }],
+          },
+        } as WebpackPluginConfig;
+
+        const generator = new MyWebpackConfigGenerator(config, mockProjectDir, false, 3000);
+
+        expect(getInvokedCounter()).to.equal(0);
+
+        await generator.getMainConfig();
+        expect(getInvokedCounter()).to.equal(1);
+
+        await generator.getRendererConfig(config.renderer.entryPoints);
+        expect(getInvokedCounter()).to.equal(2);
+      });
+
+      it('is invoked for fn config', async () => {
+        const { MyWebpackConfigGenerator, getInvokedCounter } = makeSubclass();
+
+        const config = {
+          mainConfig: () => ({
+            entry: 'main.js',
+            ...sampleWebpackConfig,
+          }),
+          renderer: {
+            config: () => ({ ...sampleWebpackConfig }),
+            entryPoints: [{
+              name: 'main',
+              js: 'rendererScript.js',
+            }],
+          },
+        } as WebpackPluginConfig;
+
+        const generator = new MyWebpackConfigGenerator(config, mockProjectDir, false, 3000);
+
+        expect(getInvokedCounter()).to.equal(0);
+
+        await generator.getMainConfig();
+        expect(getInvokedCounter()).to.equal(1);
+
+        await generator.getRendererConfig(config.renderer.entryPoints);
+        expect(getInvokedCounter()).to.equal(2);
+      });
     });
   });
 });

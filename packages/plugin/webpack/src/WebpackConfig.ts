@@ -1,10 +1,11 @@
 import debug from 'debug';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import path from 'path';
-import webpack, { Configuration } from 'webpack';
+import webpack, { Configuration, ConfigurationFactory } from 'webpack';
 import { merge as webpackMerge } from 'webpack-merge';
 
 import { WebpackPluginConfig, WebpackPluginEntryPoint, WebpackPreloadEntryPoint } from './Config';
+import processConfig from './util/processConfig';
 
 type EntryType = string | string[] | Record<string, string | string[]>;
 
@@ -36,14 +37,23 @@ export default class WebpackConfigGenerator {
     d('Config mode:', this.mode);
   }
 
-  resolveConfig(config: Configuration | string) {
-    if (typeof config === 'string') {
+  async resolveConfig(config: Configuration | ConfigurationFactory | string) {
+    const rawConfig = (typeof config === 'string')
       // eslint-disable-next-line import/no-dynamic-require, global-require
-      return require(path.resolve(this.projectDir, config)) as Configuration;
-    }
+      ? (require(path.resolve(this.projectDir, config)) as Configuration | ConfigurationFactory)
+      : config;
 
-    return config;
+    return processConfig(this.preprocessConfig, rawConfig);
   }
+
+  // Users can override this method in a subclass to provide custom logic or
+  // configuration parameters.
+  preprocessConfig = async (config: ConfigurationFactory): Promise<Configuration> => config(
+    {},
+    {
+      mode: this.mode,
+    },
+  )
 
   get mode() {
     return this.isProd ? 'production' : 'development';
@@ -121,8 +131,8 @@ export default class WebpackConfigGenerator {
     return defines;
   }
 
-  getMainConfig() {
-    const mainConfig = this.resolveConfig(this.pluginConfig.mainConfig);
+  async getMainConfig() {
+    const mainConfig = await this.resolveConfig(this.pluginConfig.mainConfig);
 
     if (!mainConfig.entry) {
       throw new Error('Required option "mainConfig.entry" has not been defined');
@@ -170,7 +180,7 @@ export default class WebpackConfigGenerator {
     parentPoint: WebpackPluginEntryPoint,
     entryPoint: WebpackPreloadEntryPoint,
   ) {
-    const rendererConfig = this.resolveConfig(this.pluginConfig.renderer.config);
+    const rendererConfig = await this.resolveConfig(this.pluginConfig.renderer.config);
     const prefixedEntries = entryPoint.prefixedEntries || [];
 
     return webpackMerge({
@@ -193,7 +203,7 @@ export default class WebpackConfigGenerator {
   }
 
   async getRendererConfig(entryPoints: WebpackPluginEntryPoint[]) {
-    const rendererConfig = this.resolveConfig(this.pluginConfig.renderer.config);
+    const rendererConfig = await this.resolveConfig(this.pluginConfig.renderer.config);
     const entry: webpack.Entry = {};
     for (const entryPoint of entryPoints) {
       const prefixedEntries = entryPoint.prefixedEntries || [];
