@@ -7,14 +7,11 @@
   "license": "MIT",
   "main": "dist/InstallerLinux.js",
   "typings": "dist/InstallerLinux.d.ts",
-  "devDependencies": {
-    "mocha": "^8.1.3"
-  },
   "engines": {
     "node": ">= 12.13.0"
   },
   "dependencies": {
-    "@electron-forge/installer-base": "6.0.0-beta.57",
+    "@electron-forge/installer-base": "file:../base",
     "sudo-prompt": "^9.1.1"
   }
 }

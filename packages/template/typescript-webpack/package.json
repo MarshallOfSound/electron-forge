@@ -14,12 +14,12 @@
     "node": ">= 12.13.0"
   },
   "dependencies": {
-    "@electron-forge/async-ora": "6.0.0-beta.57",
-    "@electron-forge/shared-types": "6.0.0-beta.57",
-    "@electron-forge/template-base": "6.0.0-beta.57",
+    "@electron-forge/async-ora": "file:../../utils/async-ora",
+    "@electron-forge/shared-types": "file:../../utils/types",
+    "@electron-forge/template-base": "file:../base",
     "fs-extra": "^10.0.0"
   },
   "devDependencies": {
-    "@electron-forge/test-utils": "6.0.0-beta.57"
+    "@electron-forge/test-utils": "file:../../utils/test-utils"
   }
 }

@@ -9,33 +9,8 @@ on:
   pull_request:
 
 jobs:
-  dependabolt:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2.3.4
-    - name: Use Node.js LTS
-      uses: actions/setup-node@v2.1.5
-      with:
-        node-version: 14.x
-    - name: Determine Yarn cache
-      id: yarn-cache
-      run: echo "::set-output name=dir::$(yarn cache dir)"
-    - name: Cache Yarn
-      uses: actions/cache@v2.1.6
-      with:
-        path: ${{ steps.yarn-cache.outputs.dir }}
-        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-yarn-
-    - name: Run dependabolt
-      if: github.event_name == 'pull_request' && startsWith(github.event.pull_request.head.ref, 'dependabot/')
-      uses: malept/github-action-dependabolt@v4.0.1
-      env:
-        DEPENDABOLT_SSH_DEPLOY_KEY: ${{ secrets.DEPENDABOLT_SSH_DEPLOY_KEY }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   fast-tests:
     runs-on: ${{ matrix.os }}
-    needs: dependabolt
     strategy:
       matrix:
         os: [windows-latest, macOS-latest, ubuntu-latest]
@@ -57,22 +32,16 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-      - name: Install bolt
-        shell: bash
-        run: |
-          case "$(uname -s)" in
-            Windows*|CYGWIN*|MINGW*|MSYS*) BOLT_VERSION=0.21.2 ;;
-            *) BOLT_VERSION=latest ;;
-          esac
-          npm install -g bolt@$BOLT_VERSION
       - name: Install
-        run: bolt
+        run: |
+          yarn
+          yarn lerna bootstrap
       - name: Lint
-        run: bolt lint
+        run: yarn lint
       - name: Build
-        run: bolt build
+        run: yarn build
       - name: Run tests
-        run: bolt coverage:fast
+        run: yarn coverage:fast
       - name: Upload code coverage to Codecov
         uses: codecov/codecov-action@v1.5.0
         with:
@@ -84,7 +53,6 @@ jobs:
 
   slow-tests:
     runs-on: ${{ matrix.os }}
-    needs: dependabolt
     strategy:
       matrix:
         os: [windows-latest, macOS-latest, ubuntu-18.04]
@@ -121,16 +89,10 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-      - name: Install bolt
-        shell: bash
-        run: |
-          case "$(uname -s)" in
-            Windows*|CYGWIN*|MINGW*|MSYS*) BOLT_VERSION=0.21.2 ;;
-            *) BOLT_VERSION=latest ;;
-          esac
-          npm install -g bolt@$BOLT_VERSION
       - name: Install
-        run: bolt
+        run: |
+          yarn
+          yarn lerna bootstrap
       - name: Test on Windows
         if: matrix.os == 'windows-latest'
         run: |
@@ -141,10 +103,10 @@ jobs:
           {
             Write-Host "Unable to find light.exe in your PATH"
           }
-          bolt coverage:slow
+          yarn coverage:slow
       - name: Test on macOS/Linux
         if: matrix.os != 'windows-latest'
-        run: bolt coverage:slow
+        run: yarn coverage:slow
         env:
           DEBUG: electron-installer-snap:snapcraft
       - name: Upload code coverage to Codecov
@@ -183,14 +145,6 @@ jobs:
   #           ${{ runner.OS }}-build-${{ env.cache-name }}-
   #           ${{ runner.OS }}-build-
   #           ${{ runner.OS }}-
-  #     - name: Install bolt
-  #       shell: bash
-  #       run: |
-  #         case "$(uname -s)" in
-  #           Windows*|CYGWIN*|MINGW*|MSYS*) BOLT_VERSION=0.21.2 ;;
-  #           *) BOLT_VERSION=latest ;;
-  #         esac
-  #         npm install -g bolt@$BOLT_VERSION
   #     - name: Deploy docs
   #       run: ci/docs.sh
   #       env:

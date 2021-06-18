@@ -7,7 +7,6 @@
   "license": "MIT",
   "main": "dist/Logger.js",
   "typings": "dist/Logger.d.ts",
-  "devDependencies": {},
   "dependencies": {
     "express": "^4.17.1",
     "express-ws": "^4.0.0",

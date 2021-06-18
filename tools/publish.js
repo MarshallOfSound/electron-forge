@@ -22,7 +22,7 @@ const prepare = new Listr([
   },
   {
     title: 'Building all packages',
-    task: () => spawn('bolt', ['build'], {
+    task: () => spawn('yarn', ['build'], {
       cwd: BASE_DIR,
     }),
   },

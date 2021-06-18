@@ -30,7 +30,7 @@
       }
     ],
     "import/no-cycle": "off",
-    "import/no-extraneous-dependencies": ["error", { "devDependencies": ["packages/**/test/**/*_spec*.ts"] }],
+    "import/no-extraneous-dependencies": "off",
     "mocha/no-exclusive-tests": "error",
     "no-await-in-loop": "off",
     "no-param-reassign": "off",
@@ -70,6 +70,17 @@
       "rules": {
         "global-require": "off",
         "import/no-dynamic-require": "off"
+      }
+    },
+    {
+      "files": ["packages/**/*.ts"],
+      "rules": {
+        "import/no-unresolved": [
+          "error",
+          {
+            "ignore": ["^@electron-forge/"]
+          }
+        ]
       }
     }
   ],

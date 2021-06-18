@@ -7,17 +7,13 @@
   "license": "MIT",
   "main": "dist/PublisherNucleus.js",
   "typings": "dist/PublisherNucleus.d.ts",
-  "devDependencies": {
-    "chai": "^4.3.3",
-    "mocha": "^8.1.3"
-  },
   "engines": {
     "node": ">= 12.13.0"
   },
   "dependencies": {
-    "@electron-forge/async-ora": "6.0.0-beta.57",
-    "@electron-forge/publisher-base": "6.0.0-beta.57",
-    "@electron-forge/shared-types": "6.0.0-beta.57",
+    "@electron-forge/async-ora": "file:../../utils/async-ora",
+    "@electron-forge/publisher-base": "file:../base",
+    "@electron-forge/shared-types": "file:../../utils/types",
     "debug": "^4.3.1",
     "form-data": "^4.0.0",
     "node-fetch": "^2.6.0"
