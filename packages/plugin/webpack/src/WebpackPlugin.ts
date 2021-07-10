@@ -11,6 +11,7 @@ import webpack, { Configuration, Watching } from 'webpack';
 import WebpackDevServer from 'webpack-dev-server';
 import { WebpackPluginConfig } from './Config';
 import ElectronForgeLoggingPlugin from './util/ElectronForgeLogging';
+import { getDependenciesForModules } from './util/Externals';
 import once from './util/once';
 import WebpackConfigGenerator from './WebpackConfig';
 
@@ -190,6 +191,10 @@ export default class WebpackPlugin extends PluginBase<WebpackPluginConfig> {
 Your packaged app may be larger than expected if you dont ignore everything other than the '.webpack' folder`.red);
       return forgeConfig;
     }
+
+    const externals = this.configGenerator.getExternals(this.config.renderer.entryPoints);
+    const externalsAndDependencies = await getDependenciesForModules(this.projectDir, externals);
+
     forgeConfig.packagerConfig.ignore = (file: string) => {
       if (!file) return false;
 
@@ -199,6 +204,16 @@ Your packaged app may be larger than expected if you dont ignore everything othe
 
       if (this.config.renderer.jsonStats && file.endsWith(path.join('.webpack', 'renderer', 'stats.json'))) {
         return true;
+      }
+
+      if (externalsAndDependencies.length > 0 && file === '/node_modules') {
+        return false;
+      }
+
+      for (const module of externalsAndDependencies) {
+        if (file.startsWith(`/node_modules/${module}`)) {
+          return false;
+        }
       }
 
       return !/^[/\\]\.webpack($|[/\\]).*$/.test(file);

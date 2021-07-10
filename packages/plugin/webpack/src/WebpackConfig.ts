@@ -4,6 +4,7 @@ import path from 'path';
 import webpack, { Configuration, WebpackPluginInstance } from 'webpack';
 import { merge as webpackMerge } from 'webpack-merge';
 import { WebpackPluginConfig, WebpackPluginEntryPoint, WebpackPreloadEntryPoint } from './Config';
+import { getExternalsFromConfig } from './util/Externals';
 
 type EntryType = string | string[] | Record<string, string | string[]>;
 
@@ -124,6 +125,13 @@ export default class WebpackConfigGenerator {
     return defines;
   }
 
+  getExternals(entryPoints: WebpackPluginEntryPoint[]): string[] {
+    const mainExternals = getExternalsFromConfig(this.getMainConfig());
+    const rendererExternals = getExternalsFromConfig(this.getRendererConfig(entryPoints));
+
+    return Array.from(new Set([...mainExternals, ...rendererExternals]));
+  }
+
   sourceMapOption() {
     return this.isProd ? 'source-map' : 'eval-source-map';
   }
@@ -199,7 +207,7 @@ export default class WebpackConfigGenerator {
     { target: 'electron-preload' });
   }
 
-  async getRendererConfig(entryPoints: WebpackPluginEntryPoint[]) {
+  getRendererConfig(entryPoints: WebpackPluginEntryPoint[]) {
     const rendererConfig = this.resolveConfig(this.pluginConfig.renderer.config);
     const entry: webpack.Entry = {};
     for (const entryPoint of entryPoints) {
