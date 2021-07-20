@@ -128,7 +128,12 @@ export default class PublisherERS extends PublisherBase<PublisherERSConfig> {
           artifactForm.append('token', token);
           artifactForm.append('version', packageJSON.version);
           artifactForm.append('platform', ersPlatform(makeResult.platform, makeResult.arch));
-          artifactForm.append('file', fs.createReadStream(artifactPath));
+
+          // see https://github.com/form-data/form-data/issues/426
+          const fileOptions = {
+            knownLength: fs.statSync(artifactPath).size,
+          };
+          artifactForm.append('file', fs.createReadStream(artifactPath), fileOptions);
           await authFetch('api/asset', {
             method: 'POST',
             body: artifactForm,
