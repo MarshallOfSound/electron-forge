@@ -39,6 +39,10 @@ export interface MakerDMGConfig {
    */
   name?: string;
   /**
+   * The title of the produced DMG, which will be shown when mounted
+   */
+  title?: string;
+  /**
    * Path to the background for the DMG window
    */
   background?: string;
