@@ -1,6 +1,12 @@
 // eslint-disable-next-line import/prefer-default-export
 export interface MakerPKGConfig {
   /**
+   * The name to the output the flattened package.
+   *
+   * Default: `${appName}-${packageJSON.version}.pkg`
+   */
+  name?: string;
+  /**
    * Name of certificate to use when signing.
    *
    * Default to be selected with respect to platform from keychain or keychain
