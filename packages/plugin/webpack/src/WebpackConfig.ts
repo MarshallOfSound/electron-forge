@@ -162,7 +162,8 @@ export default class WebpackConfigGenerator {
     parentPoint: WebpackPluginEntryPoint,
     entryPoint: WebpackPreloadEntryPoint,
   ) {
-    const rendererConfig = this.resolveConfig(this.pluginConfig.renderer.config);
+    const rendererConfig = this
+      .resolveConfig(this.pluginConfig.renderer.preloadConfig || this.pluginConfig.renderer.config);
     const prefixedEntries = entryPoint.prefixedEntries || [];
 
     return webpackMerge({
@@ -194,6 +195,7 @@ export default class WebpackConfigGenerator {
     }
 
     const defines = this.getDefines(false);
+
     const plugins = entryPoints.filter((entryPoint) => Boolean(entryPoint.html))
       .map((entryPoint) => new HtmlWebpackPlugin({
         title: entryPoint.name,
