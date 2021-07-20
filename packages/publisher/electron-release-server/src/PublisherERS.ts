@@ -80,6 +80,8 @@ export default class PublisherERS extends PublisherBase<PublisherERSConfig> {
       if (config.channel) {
         // eslint-disable-next-line prefer-destructuring
         channel = config.channel;
+      } else if (packageJSON.version.includes('rc')) {
+        channel = 'rc';
       } else if (packageJSON.version.includes('beta')) {
         channel = 'beta';
       } else if (packageJSON.version.includes('alpha')) {
