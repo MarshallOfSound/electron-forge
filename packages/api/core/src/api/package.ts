@@ -175,8 +175,8 @@ export default async ({
   const packageOpts: packager.Options = {
     asar: false,
     overwrite: true,
-    ...forgeConfig.packagerConfig,
     dir,
+    ...forgeConfig.packagerConfig,
     arch: arch as PackagerArch,
     platform,
     afterCopy: sequentialHooks(afterCopyHooks),
