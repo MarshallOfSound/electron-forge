@@ -2,7 +2,6 @@ import { asyncOra } from '@electron-forge/async-ora';
 import { ForgeMakeResult } from '@electron-forge/shared-types';
 import fs from 'fs-extra';
 import mime from 'mime-types';
-import path from 'path';
 import PublisherBase, { PublisherOptions } from '@electron-forge/publisher-base';
 import { GetResponseDataTypeFromEndpointMethod } from '@octokit/types';
 
@@ -99,11 +98,21 @@ export default class PublisherGithub extends PublisherBase<PublisherGitHubConfig
             uploaded += 1;
             updateSpinner();
           };
-          const artifactName = path.basename(artifactPath);
+          const artifactName = GitHub.sanitizeName(artifactPath);
           // eslint-disable-next-line max-len
-          if (release!.assets.find((asset: OctokitReleaseAsset) => asset.name === artifactName)) {
-            return done();
+          const asset = release!.assets.find((item: OctokitReleaseAsset) => item.name === artifactName);
+          if (asset !== undefined) {
+            if (config.override === true) {
+              await github.getGitHub().repos.deleteReleaseAsset({
+                owner: config.repository.owner,
+                repo: config.repository.name,
+                asset_id: asset.id,
+              });
+            } else {
+              return done();
+            }
           }
+
           await github.getGitHub().repos.uploadReleaseAsset({
             owner: config.repository.owner,
             repo: config.repository.name,
@@ -115,7 +124,7 @@ export default class PublisherGithub extends PublisherBase<PublisherGitHubConfig
               'content-type': mime.lookup(artifactPath) || 'application/octet-stream',
               'content-length': (await fs.stat(artifactPath)).size,
             },
-            name: path.basename(artifactPath),
+            name: artifactName,
           });
           return done();
         }));

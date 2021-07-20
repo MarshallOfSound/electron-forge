@@ -95,5 +95,17 @@ describe('GitHub', () => {
         gh.getGitHub();
       }).to.throw('Please set GITHUB_TOKEN in your environment to access these features');
     });
+
+    it('should synthesize name without leading or trailing periods', () => {
+      expect(GitHub.sanitizeName('path/to/.foo.'), 'foo');
+    });
+
+    it('should synthesize name without multiple periods', () => {
+      expect(GitHub.sanitizeName('path/to/foo..bar'), 'foobar');
+    });
+
+    it('should synthesize name without non-alphanumeric characters', () => {
+      expect(GitHub.sanitizeName('path/to/foo%bar baz.'), 'foo-bar-baz');
+    });
   });
 });

@@ -39,4 +39,8 @@ export interface PublisherGitHubConfig {
    * Whether or not this release should be tagged as a draft
    */
   draft?: boolean;
+  /**
+   * Re-upload the new asset if you upload an asset with the same filename as existing asset
+   */
+  override?: boolean;
 }
