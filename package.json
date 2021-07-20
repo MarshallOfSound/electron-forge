@@ -114,7 +114,7 @@
     "@types/semver": "^7.3.4",
     "@types/sinon": "^10.0.0",
     "@types/sinon-chai": "^3.2.5",
-    "@typescript-eslint/eslint-plugin": "^4.11.0",
+    "@typescript-eslint/eslint-plugin": "^4.28.4",
     "@typescript-eslint/parser": "^4.11.0",
     "babel-plugin-source-map-support": "^2.1.2",
     "chai": "^4.3.3",
