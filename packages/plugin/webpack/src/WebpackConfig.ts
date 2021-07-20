@@ -194,7 +194,13 @@ export default class WebpackConfigGenerator {
     }
 
     const defines = this.getDefines(false);
-    const plugins = entryPoints.filter((entryPoint) => Boolean(entryPoint.html))
+
+    const useHtmlWebpackPlugin = !rendererConfig?.plugins?.find(
+      (plugin) => plugin.constructor && plugin.constructor.name === 'HtmlWebpackPlugin'
+    );
+
+    const plugins = entryPoints
+      .filter((entryPoint) => Boolean(entryPoint.html) && useHtmlWebpackPlugin)
       .map((entryPoint) => new HtmlWebpackPlugin({
         title: entryPoint.name,
         template: entryPoint.html,

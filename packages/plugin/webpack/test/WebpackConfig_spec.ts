@@ -1,6 +1,7 @@
 import { Compiler, Entry, WebpackPluginInstance } from 'webpack';
 import { expect } from 'chai';
 import path from 'path';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 import WebpackConfigGenerator from '../src/WebpackConfig';
 import { WebpackPluginConfig, WebpackPluginEntryPoint } from '../src/Config';
@@ -366,6 +367,26 @@ describe('WebpackConfigGenerator', () => {
       });
       expect(webpackConfig.plugins!.length).to.equal(3);
       expect(hasAssetRelocatorPatchPlugin(webpackConfig.plugins)).to.equal(true);
+    });
+
+    it('does not add a second HTMLWebpackPlugin', async () => {
+      const config = {
+        renderer: {
+          config: {
+            plugins: [
+              new HtmlWebpackPlugin(),
+            ],
+          },
+          entryPoints: [{
+            name: 'main',
+            html: 'renderer.html',
+            js: 'rendererScript.js',
+          }],
+        },
+      } as WebpackPluginConfig;
+      const generator = new WebpackConfigGenerator(config, mockProjectDir, false, 3000);
+      const webpackConfig = await generator.getRendererConfig(config.renderer.entryPoints);
+      expect(webpackConfig.plugins!.length).to.equal(3);
     });
 
     it('generates a production config', async () => {
