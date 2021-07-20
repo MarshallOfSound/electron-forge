@@ -26,6 +26,7 @@ import workingDir from './util/working-dir';
     .option('-n, --run-as-node', 'Run the Electron app as a Node.JS script')
     .option('--vscode', 'Used to enable arg transformation for debugging Electron through VSCode.  Do not use yourself.')
     .option('-i, --inspect-electron', 'Triggers inspect mode on Electron to allow debugging the main process.  Electron >1.7 only')
+    .option('--inspect-brk-electron', 'Triggers inspect-brk mode on Electron to allow debugging the main process.  Electron >1.7 only')
     .action((cwd) => { dir = workingDir(dir, cwd); })
     .parse(commandArgs);
 
@@ -43,6 +44,7 @@ import workingDir from './util/working-dir';
     enableLogging: !!program.enableLogging,
     runAsNode: !!program.runAsNode,
     inspect: !!program.inspectElectron,
+    inspectBrk: !!program.inspectBrkElectron,
   };
 
   if (program.vscode && appArgs) {

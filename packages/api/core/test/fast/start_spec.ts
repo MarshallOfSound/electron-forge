@@ -172,6 +172,21 @@ describe('start', () => {
     expect(spawnStub.firstCall.args[1].slice(1)).to.deep.equal(['--inspect'].concat(args));
   });
 
+  it('should pass --inspect-brk at the start of the args if inspectBrk is set', async () => {
+    const args = ['magic'];
+    resolveStub.returnsArg(0);
+    spawnStub.returns(0);
+    await start({
+      args,
+      dir: __dirname,
+      interactive: false,
+      inspectBrk: true,
+    });
+    expect(spawnStub.callCount).to.equal(1);
+    expect(spawnStub.firstCall.args[0]).to.equal('fake_electron_path');
+    expect(spawnStub.firstCall.args[1].slice(1)).to.deep.equal(['--inspect-brk'].concat(args));
+  });
+
   it('should resolve with a handle to the spawned instance', async () => {
     resolveStub.returnsArg(0);
     const fakeChild = { on: () => {} };
