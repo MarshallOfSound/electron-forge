@@ -148,13 +148,6 @@ export default class WebpackConfigGenerator {
         __dirname: false,
         __filename: false,
       },
-      resolve: {
-        modules: [
-          path.resolve(path.dirname(this.webpackDir), './'),
-          path.resolve(path.dirname(this.webpackDir), 'node_modules'),
-          path.resolve(__dirname, '..', 'node_modules'),
-        ],
-      },
     }, mainConfig || {});
   }
 
