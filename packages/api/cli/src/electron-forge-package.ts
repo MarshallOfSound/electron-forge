@@ -15,6 +15,7 @@ import workingDir from './util/working-dir';
     .arguments('[cwd]')
     .option('-a, --arch [arch]', 'Target architecture')
     .option('-p, --platform [platform]', 'Target build platform')
+    .allowUnknownOption(true)
     .action((cwd) => { dir = workingDir(dir, cwd); })
     .parse(process.argv);
 
