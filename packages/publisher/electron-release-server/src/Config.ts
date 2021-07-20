@@ -1,3 +1,9 @@
+type DarwinFileExtension = '.dmg' | '.pkg' | '.mas' | '.zip';
+
+type WindowsFileExtension = '.exe' | '.msi' | '.nupkg';
+
+type LinuxFileExtension = '.deb' | '.gz' | '.rpm' | '.AppImage';
+
 // eslint-disable-next-line import/prefer-default-export
 export interface PublisherERSConfig {
   /**
@@ -24,4 +30,9 @@ export interface PublisherERSConfig {
    * Default: stable
    */
   channel?: string;
+  fileExtensions?: {
+    darwin?: DarwinFileExtension[],
+    win32?: WindowsFileExtension[],
+    linux?: LinuxFileExtension[],
+  }
 }
